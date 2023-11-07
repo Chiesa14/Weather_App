@@ -10,6 +10,7 @@ class WeatherService {
   final String apiKey;
 
   WeatherService(this.apiKey);
+
   Future<Weather> getWeather(String cityName) async {
     final response = await http
         .get(Uri.parse('$baseUrl?q=$cityName&appid=$apiKey&units=metric'));
@@ -25,6 +26,12 @@ class WeatherService {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        Future.error("Permission partially denied");
+      }
+    }
+    if (permission == LocationPermission.deniedForever) {
+      Future.error("Permission permenently denied");
     }
 
     //fetch the current location
@@ -36,9 +43,8 @@ class WeatherService {
         await placemarkFromCoordinates(position.latitude, position.longitude);
 
     //Extracting the city from the first placemarks
-
     String? city = placemarks[0].locality;
 
-    return city ?? "";
+    return city ?? "kigali";
   }
 }
