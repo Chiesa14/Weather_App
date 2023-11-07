@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:todo_app/models/weather_model.dart';
+import 'package:weather_app/models/weather_model.dart';
 import 'package:http/http.dart' as http;
 
 class WeatherService {
@@ -41,6 +41,10 @@ class WeatherService {
     //convent the location into a list of placemark objects
     List<Placemark> placemarks =
         await placemarkFromCoordinates(position.latitude, position.longitude);
+
+    for (var element in placemarks) {
+      print(element.locality);
+    }
 
     //Extracting the city from the first placemarks
     String? city = placemarks[0].locality;
