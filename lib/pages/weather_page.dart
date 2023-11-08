@@ -18,7 +18,6 @@ class _WeatherPageState extends State<WeatherPage> {
   _featchWeather() async {
     //get the current city
     String cityName = await _weatherService.getCurrentCity();
-    print(cityName);
     //get the weather
     try {
       final weather = await _weatherService.getWeather(cityName);
@@ -31,7 +30,7 @@ class _WeatherPageState extends State<WeatherPage> {
   }
 
   String getTHeWeatherAnimation(String? mainCondition) {
-    if (mainCondition == null) return 'assets/sunny.json';
+    if (mainCondition == null) return 'assets/loader.json';
     switch (mainCondition.toLowerCase()) {
       case "clouds":
       case "mist":
@@ -59,6 +58,7 @@ class _WeatherPageState extends State<WeatherPage> {
         color: Color(0xB3FFFFFF), fontSize: 50, fontWeight: FontWeight.bold);
   }
 
+  final icon = Lottie.asset("assets/location.json");
   @override
   void initState() {
     super.initState();
@@ -70,15 +70,20 @@ class _WeatherPageState extends State<WeatherPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.grey[800],
+        appBar: AppBar(
+          title: Lottie.asset('assets/location.json', width: 50, height: 50),
+          centerTitle: true,
+          backgroundColor: Colors.grey[800],
+          elevation: 0,
+        ),
         body: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Lottie.asset('assets/location.json', width: 50, height: 50),
               Text(_weather?.cityName ?? "Loading City..", style: _stylings()),
               Lottie.asset(getTHeWeatherAnimation(_weather?.mainCondition)),
               Text(
-                "${_weather?.temperature.round()}°",
+                "${_weather?.temperature.round() ?? ""}",
                 style: _stylings(),
               ),
             ],

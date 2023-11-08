@@ -22,33 +22,40 @@ class WeatherService {
   }
 
   Future<String> getCurrentCity() async {
-    //get permissions from the users
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+    try {
+      //get permissions from the users
+      LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        Future.error("Permission partially denied");
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          Future.error("Permission partially denied");
+        }
       }
+      if (permission == LocationPermission.deniedForever) {
+        Future.error("Permission permenently denied");
+      }
+
+      //fetch the current location
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+
+      //convent the location into a list of placemark objects
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+
+      //Extracting the city from the first placemarks
+      String? city;
+      for (var element in placemarks) {
+        if (element.locality != "") {
+          city = element.locality;
+          break;
+        }
+      }
+      String? defaultCity = "kigali";
+      return city ?? defaultCity;
+    } catch (e) {
+      print(e);
+      return "";
     }
-    if (permission == LocationPermission.deniedForever) {
-      Future.error("Permission permenently denied");
-    }
-
-    //fetch the current location
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-
-    //convent the location into a list of placemark objects
-    List<Placemark> placemarks =
-        await placemarkFromCoordinates(position.latitude, position.longitude);
-
-    for (var element in placemarks) {
-      print(element.locality);
-    }
-
-    //Extracting the city from the first placemarks
-    String? city = placemarks[0].locality;
-
-    return city ?? "kigali";
   }
 }
